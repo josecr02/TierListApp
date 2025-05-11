@@ -1,0 +1,27 @@
+# build artifacts
+*.o
+*.obj
+*.so
+*.a
+*.exe
+*.dll
+*.app
+*.out
+
+# Qt files
+Makefile*
+*.pro.user
+moc_*
+ui_*
+qrc_*
+
+# build/ folder if you use one
+build/
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+
+# Backup files
+*~
+*.swp

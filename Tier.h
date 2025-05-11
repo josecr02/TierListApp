@@ -1,0 +1,80 @@
+#pragma once
+
+#include <QWidget>
+#include <QColor>
+#include <QString>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QFrame>
+#include <QPixmap>
+#include <QLineEdit>
+
+class Tier : public QWidget 
+{
+    Q_OBJECT
+
+    QString tierName;
+    QColor tierColor;
+
+public:
+    Tier(const QString& tierName, const QColor& tierColor, 
+        QWidget* parent = nullptr);
+    
+    QString getTierName() const;
+    QColor getTierColor() const;
+
+protected:
+    // Draws the colored background and name inside
+    void paintEvent(QPaintEvent* event) override;
+};
+
+class DropFrame : public QFrame
+{
+    Q_OBJECT
+
+public:
+    DropFrame(QWidget* parent = nullptr);
+    QHBoxLayout* getLayout();
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+
+private:
+    QHBoxLayout* layout;
+};
+
+class TierRow : public QWidget
+{
+    Q_OBJECT
+
+    QLineEdit* tierLabel;
+    QFrame* dropArea;
+    QHBoxLayout* mainLayout;
+    QHBoxLayout* dropLayout; // layout inside dropArea
+
+public:
+    TierRow(const QString& name, const QColor& color, QWidget* parent = nullptr);
+
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+
+};
+
+class TierItem : public QLabel
+{
+    Q_OBJECT
+
+    QString imagePath;
+
+public:
+    TierItem(const QString& imagePath, QWidget* parent = nullptr);
+    QString getImagePath() const;
+
+protected:
+    void mousePressEvent(QMouseEvent* event) override;
+};
