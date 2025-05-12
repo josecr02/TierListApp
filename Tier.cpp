@@ -89,13 +89,41 @@ TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
     dropArea->setFrameShape(QFrame::StyledPanel);
     dropArea->setMinimumHeight(80);
     dropArea->setAcceptDrops(true);
+    dropArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     dropLayout = new QHBoxLayout(dropArea);
+    dropLayout->setAlignment(Qt::AlignLeft);  // 💥 This is the fix
     dropArea->setLayout(dropLayout);
+    dropLayout->setSpacing(0);
+    dropLayout->setContentsMargins(0, 0, 0, 0); 
+
+
+    // The configuration and arrows
+    settingsButton = new QPushButton("X", this);
+    connect(settingsButton, &QPushButton::clicked, this, &TierRow::onSettingsClicked);
+
+    upButton = new QPushButton("T", this);
+    connect(upButton, &QPushButton::clicked, this, &TierRow::onMoveUpClicked);
+
+    downButton = new QPushButton("L", this);
+    connect(downButton, &QPushButton::clicked, this, &TierRow::onMoveDownClicked);
+
+    // Style buttons (optional)
+    settingsButton->setFixedSize(30, 30);
+    upButton->setFixedSize(30, 30);
+    downButton->setFixedSize(30, 30);
+
+
 
     // add widgets
     mainLayout->addWidget(tierLabel);
     mainLayout->addWidget(dropArea);
+
+    QVBoxLayout* controlLayout = new QVBoxLayout();
+    controlLayout->addWidget(settingsButton);
+    controlLayout->addWidget(upButton);
+    controlLayout->addWidget(downButton);
+    mainLayout->addLayout(controlLayout);
 
     setLayout(mainLayout);
 
@@ -104,6 +132,19 @@ TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
     setAutoFillBackground(true);
     setPalette(bgPalette);
 }
+
+void TierRow::onSettingsClicked() {
+    emit openSettings(this); // emits the signal, cool!!!
+}
+
+void TierRow::onMoveUpClicked() {
+    emit moveUp(this);
+}
+
+void TierRow::onMoveDownClicked() {
+    emit moveDown(this);
+}
+
 
 void TierRow::dragEnterEvent(QDragEnterEvent* event){
     if (event->mimeData()->hasText()){
@@ -117,9 +158,12 @@ void TierRow::dropEvent(QDropEvent* event){
 
     TierItem* item = new TierItem(imagePath, this);
     dropLayout->addWidget(item);
+    //dropLayout->insertWidget(0, item); // nope, this puts the element in fist posn to left
 
     event->acceptProposedAction();
 }
+
+
 
 
 
@@ -129,8 +173,14 @@ TierItem::TierItem(const QString& imagePath, QWidget* parent)
 {
     QPixmap pix(imagePath);
     setPixmap(pix.scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFixedSize(80, 80);
-    setStyleSheet("border: 1px solid black;");
+    setStyleSheet(R"(
+        background-color: lightgray;
+        border: 1px solid black;
+        margin: 0px;
+        padding: 0px;
+    )");
     
 }
 
@@ -184,6 +234,7 @@ void DropFrame::dropEvent(QDropEvent* event){
     qDebug() << "dropEvent: DropFrame";
     QString imagePath = event->mimeData()->text();
     layout->addWidget(new TierItem(imagePath, this));
+    // layout->insertWidget(0, new TierItem(imagePath, this)); // nope
     //event->acceptProposedAction();
     event->setDropAction(Qt::MoveAction);
     event->accept();

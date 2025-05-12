@@ -5,6 +5,8 @@
 #include <QLabel>
 #include <QWidget>
 
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -19,17 +21,30 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout = new QVBoxLayout(central);
     central->setLayout(mainLayout);
 
-    mainLayout->addWidget(new TierRow("S Tier", QColor(255, 67, 89), this)); // gold color
-    mainLayout->addWidget(new TierRow("A Tier", QColor(255, 152, 67), this)); // silver
-    mainLayout->addWidget(new TierRow("B Tier", QColor(250, 255, 64), this)); // bronze
-    mainLayout->addWidget(new TierRow("C Tier", QColor(96, 237, 75), this)); // light blue
-    mainLayout->addWidget(new TierRow("D Tier", QColor(99, 254, 248), this)); // light salmon
+    // mainLayout->addWidget(new TierRow("S Tier", QColor(255, 67, 89), this)); // gold color
+    // mainLayout->addWidget(new TierRow("A Tier", QColor(255, 152, 67), this)); // silver
+    // mainLayout->addWidget(new TierRow("B Tier", QColor(250, 255, 64), this)); // bronze
+    // mainLayout->addWidget(new TierRow("C Tier", QColor(96, 237, 75), this)); // light blue
+    // mainLayout->addWidget(new TierRow("D Tier", QColor(99, 254, 248), this)); // light salmon
+
+    // generate default rows
+    for (int i = 0; i < 5; ++i){
+        TierRow* row = new TierRow("S Tier", QColor(255, 67, 89), this);
+        mainLayout->addWidget(row);
+        tierRows.append(row);
+        connect(row, &TierRow::moveUp, this, &MainWindow::onRowMoveUp);
+        connect(row, &TierRow::moveDown, this, &MainWindow::onRowMoveDown);
+        connect(row, &TierRow::openSettings, this, &MainWindow::onOpenRowSettings);
+    }
+    
+
 
 
     // Button to load images
     QPushButton* loadButton = new QPushButton("Load Images", this);
     mainLayout->addWidget(loadButton);
     connect(loadButton, &QPushButton::clicked, this, &MainWindow::loadImages);
+
 
 // ⬇️ Source item container
     // sourceItemsContainer = new QWidget(this);
@@ -95,4 +110,27 @@ void MainWindow::loadImages()
         sourceItemsContainer->getLayout()->addWidget(item);
         // sourceItemsLayout->addWidget(item);
     }
+}
+
+
+// basic functionality, have to change that SWAPS
+void MainWindow::onRowMoveUp(TierRow* row) {
+    int index = mainLayout->indexOf(row);
+    if (index > 0) {
+        mainLayout->removeWidget(row);
+        mainLayout->insertWidget(index - 1, row);
+    }
+}
+
+void MainWindow::onRowMoveDown(TierRow* row) {
+    int index = tierRows.indexOf(row);
+    if (index < tierRows.size() - 1) {
+        tierRows.swapItemsAt(index, index + 1);
+        mainLayout->removeWidget(row);
+        mainLayout->insertWidget(index + 1, row);
+    }
+}
+
+void MainWindow::onOpenRowSettings(TierRow* row) {
+    // Open a QDialog for settings (I'll provide this in the next step)
 }

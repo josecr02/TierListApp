@@ -10,6 +10,7 @@
 #include <QFrame>
 #include <QPixmap>
 #include <QLineEdit>
+#include <QPushButton>
 
 class Tier : public QWidget 
 {
@@ -55,8 +56,22 @@ class TierRow : public QWidget
     QHBoxLayout* mainLayout;
     QHBoxLayout* dropLayout; // layout inside dropArea
 
+    QPushButton* settingsButton;
+    QPushButton* upButton;
+    QPushButton* downButton;
+
 public:
     TierRow(const QString& name, const QColor& color, QWidget* parent = nullptr);
+
+signals:
+    void moveUp(TierRow*);
+    void moveDown(TierRow*);
+    void openSettings(TierRow*);
+
+private slots:
+    void onSettingsClicked();
+    void onMoveUpClicked();
+    void onMoveDownClicked();
 
 
 protected:
