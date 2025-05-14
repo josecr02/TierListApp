@@ -137,6 +137,8 @@ void MainWindow::onOpenRowSettings(TierRow* row) {
         row->getTierColor(),
         this
     );
+
+    connect(dialog, &TierSettingsDialog::colorChanged, row, &TierRow::setTierColor);
     
     connect(dialog, &TierSettingsDialog::deleteRow, this, [this, row]() {
         mainLayout->removeWidget(row);

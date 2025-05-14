@@ -79,6 +79,16 @@ public:
 
     void setTierColor(const QColor& newColor){
         color = newColor;
+        QString style = QString(R"(
+            font-weight: bold;
+            font-size: 20pt;
+            color: white;
+            background-color: %1;
+            border: none;
+            padding: 10px;
+        )").arg(color.name());
+    
+        tierLabel->setStyleSheet(style);
     }
 
 

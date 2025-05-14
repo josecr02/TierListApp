@@ -63,6 +63,7 @@ void TierSettingsDialog::onColorSelected()
     QPushButton* btn = qobject_cast<QPushButton*>(sender());
     if (btn) {
         selectedColor = QColor(btn->property("color").toString());
+        emit colorChanged(selectedColor);
     }
 }
 

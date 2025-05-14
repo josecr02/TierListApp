@@ -28,6 +28,7 @@ signals: // like events
     void clearImages();
     void addRowAbove();
     void addRowBelow();
+    void colorChanged(const QColor&);
 
 private slots:
     void onColorSelected();
