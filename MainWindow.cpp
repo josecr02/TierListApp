@@ -132,5 +132,32 @@ void MainWindow::onRowMoveDown(TierRow* row) {
 }
 
 void MainWindow::onOpenRowSettings(TierRow* row) {
-    // Open a QDialog for settings (I'll provide this in the next step)
+    TierSettingsDialog* dialog = new TierSettingsDialog(
+        row->getTierName(),
+        row->getTierColor(),
+        this
+    );
+    
+    connect(dialog, &TierSettingsDialog::deleteRow, this, [this, row]() {
+        mainLayout->removeWidget(row);
+        tierRows.removeOne(row);
+        row->deleteLater();
+    });
+    
+    connect(dialog, &TierSettingsDialog::clearImages, this, [row]() {
+      //  row->clearImages();  // you'll need to implement this in TierRow
+    });
+    
+    connect(dialog, &TierSettingsDialog::addRowAbove, this, [this, row]() {
+      //  insertRowRelativeTo(row, /*above=*/true);
+    });
+    
+    connect(dialog, &TierSettingsDialog::addRowBelow, this, [this, row]() {
+      //  insertRowRelativeTo(row, /*above=*/false);
+    });
+    
+    if (dialog->exec() == QDialog::Accepted) {
+        row->setTierName(dialog->getNewName());
+        row->setTierColor(dialog->getSelectedColor());
+    }
 }

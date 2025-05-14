@@ -43,7 +43,7 @@ void Tier::paintEvent(QPaintEvent* event)
 // *************** ROWS ****************
 
 TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
-: QWidget(parent)
+: QWidget(parent), name{name}
 {
     mainLayout = new QHBoxLayout(this);
 

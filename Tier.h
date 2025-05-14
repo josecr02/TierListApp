@@ -51,6 +51,8 @@ class TierRow : public QWidget
 {
     Q_OBJECT
 
+    QString name;
+    QColor color;
     QLineEdit* tierLabel;
     QFrame* dropArea;
     QHBoxLayout* mainLayout;
@@ -62,6 +64,24 @@ class TierRow : public QWidget
 
 public:
     TierRow(const QString& name, const QColor& color, QWidget* parent = nullptr);
+
+    QString getTierName(){
+        return name;
+    }
+
+    QColor getTierColor(){
+        return color;
+    }
+
+    void setTierName(const QString& newName){
+        name = newName;
+    }
+
+    void setTierColor(const QColor& newColor){
+        color = newColor;
+    }
+
+
 
 signals:
     void moveUp(TierRow*);

@@ -4,10 +4,13 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
            MainWindow.cpp \
-           Tier.cpp
+           Tier.cpp \
+           TierSettingsDialog.cpp
 
 HEADERS += MainWindow.h \
-           Tier.h
+           Tier.h \
+           TierSettingsDialog.h
+
 
 FORMS += MainWindow.ui \
     MainWindow.ui

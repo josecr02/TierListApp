@@ -6,6 +6,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include "Tier.h"
+#include "TierSettingsDialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -29,3 +30,4 @@ private:
     //QVBoxLayout* mainLayout;
     QVector<TierRow*> tierRows;
 };
+
