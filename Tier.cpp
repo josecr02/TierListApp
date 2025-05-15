@@ -11,6 +11,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QDebug>
+#include <QIcon>
 
 
 Tier::Tier(const QString& tierName, const QColor& tierColor, 
@@ -97,15 +98,25 @@ TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
     dropLayout->setSpacing(0);
     dropLayout->setContentsMargins(0, 0, 0, 0); 
 
+    QIcon settingsIcon("resources/settings.png");
+    QIcon upArrowIcon("resources/upArrow.png");
+    QIcon downArrowIcon("resources/downArrow.png");
+
 
     // The configuration and arrows
-    settingsButton = new QPushButton("X", this);
+    settingsButton = new QPushButton(this);
+    settingsButton->setIcon(settingsIcon);
+    settingsButton->setIconSize(QSize(20, 20));
     connect(settingsButton, &QPushButton::clicked, this, &TierRow::onSettingsClicked);
 
-    upButton = new QPushButton("T", this);
+    upButton = new QPushButton(this);
+    upButton->setIcon(upArrowIcon);
+    upButton->setIconSize(QSize(20, 20));
     connect(upButton, &QPushButton::clicked, this, &TierRow::onMoveUpClicked);
 
-    downButton = new QPushButton("L", this);
+    downButton = new QPushButton(this);
+    downButton->setIcon(downArrowIcon);
+    downButton->setIconSize(QSize(20, 20));
     connect(downButton, &QPushButton::clicked, this, &TierRow::onMoveDownClicked);
 
     // Style buttons (optional)
