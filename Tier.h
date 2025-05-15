@@ -82,7 +82,7 @@ public:
         QString style = QString(R"(
             font-weight: bold;
             font-size: 20pt;
-            color: white;
+            color: black;
             background-color: %1;
             border: none;
             padding: 10px;

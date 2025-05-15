@@ -29,5 +29,7 @@ private:
 
     //QVBoxLayout* mainLayout;
     QVector<TierRow*> tierRows;
+
+    void insertRowRelativeTo(TierRow* referenceRow, bool above);
 };
 

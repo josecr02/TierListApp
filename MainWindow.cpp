@@ -151,15 +151,31 @@ void MainWindow::onOpenRowSettings(TierRow* row) {
     });
     
     connect(dialog, &TierSettingsDialog::addRowAbove, this, [this, row]() {
-      //  insertRowRelativeTo(row, /*above=*/true);
+       insertRowRelativeTo(row, /*above=*/true);
     });
     
     connect(dialog, &TierSettingsDialog::addRowBelow, this, [this, row]() {
-      //  insertRowRelativeTo(row, /*above=*/false);
+       insertRowRelativeTo(row, /*above=*/false);
     });
     
     if (dialog->exec() == QDialog::Accepted) {
         row->setTierName(dialog->getNewName());
         row->setTierColor(dialog->getSelectedColor());
     }
+}
+
+void MainWindow::insertRowRelativeTo(TierRow* referenceRow, bool above){
+    int index = tierRows.indexOf(referenceRow);
+    if (index == -1) return;
+
+    int insertIndex = above ? index : index + 1;
+
+    TierRow* newRow = new TierRow("New Tier", QColor("#dddddd"), this);
+    mainLayout->insertWidget(insertIndex, newRow);
+    tierRows.insert(insertIndex, newRow);
+
+    // Connect signals just like when creating rows initially
+    connect(newRow, &TierRow::moveUp, this, &MainWindow::onRowMoveUp);
+    connect(newRow, &TierRow::moveDown, this, &MainWindow::onRowMoveDown);
+    connect(newRow, &TierRow::openSettings, this, &MainWindow::onOpenRowSettings);
 }
