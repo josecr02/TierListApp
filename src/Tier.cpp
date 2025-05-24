@@ -96,7 +96,11 @@ TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
     dropLayout->setAlignment(Qt::AlignLeft);  // 💥 This is the fix
     dropArea->setLayout(dropLayout);
     dropLayout->setSpacing(0);
-    dropLayout->setContentsMargins(0, 0, 0, 0); 
+    dropLayout->setContentsMargins(0, 0, 0, 0);  
+
+    // connect signal from DropFrame
+    // connect(dropArea, &DropFrame::itemDropped, this, [this](const QString& imagePath) {
+    // dropLayout->addWidget(new TierItem(imagePath, this)); });
 
     QIcon settingsIcon("resources/settings.png");
     QIcon upArrowIcon("resources/upArrow.png");
@@ -174,6 +178,27 @@ void TierRow::dropEvent(QDropEvent* event){
     event->acceptProposedAction();
 }
 
+void TierRow::clearImages()
+{
+    int count = dropLayout->count();
+
+    qDebug() << "Clearing" << count << "items from dropLayout";
+
+    for (int i = count - 1; i >= 0; --i) {
+        QLayoutItem* item = dropLayout->takeAt(i);
+        if (!item) continue;
+
+        QWidget* widget = item->widget();
+        if (widget) {
+            qDebug() << "Deleting widget at position" << i;
+            widget->hide();        // Optional: visually hide before delete
+            widget->deleteLater(); // Safe Qt deletion
+        }
+
+        delete item;
+    }
+}
+
 
 
 
@@ -228,6 +253,7 @@ DropFrame::DropFrame(QWidget* parent) : QFrame(parent)
     setAcceptDrops(true);
     layout = new QHBoxLayout(this);
     setLayout(layout);
+    //setLayout(new QHBoxLayout(this));
 }
 
 QHBoxLayout* DropFrame::getLayout()
@@ -244,9 +270,10 @@ void DropFrame::dragEnterEvent(QDragEnterEvent* event){
 void DropFrame::dropEvent(QDropEvent* event){
     qDebug() << "dropEvent: DropFrame";
     QString imagePath = event->mimeData()->text();
+    emit itemDropped(imagePath);
     layout->addWidget(new TierItem(imagePath, this));
     // layout->insertWidget(0, new TierItem(imagePath, this)); // nope
-    //event->acceptProposedAction();
+    event->acceptProposedAction();
     event->setDropAction(Qt::MoveAction);
-    event->accept();
+    //event->accept();
 }

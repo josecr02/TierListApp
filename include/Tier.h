@@ -39,6 +39,9 @@ public:
     DropFrame(QWidget* parent = nullptr);
     QHBoxLayout* getLayout();
 
+signals:
+    void itemDropped(const QString& imagePath);
+
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
@@ -90,6 +93,8 @@ public:
     
         tierLabel->setStyleSheet(style);
     }
+
+    void clearImages();
 
 
 

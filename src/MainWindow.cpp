@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QLabel>
+#include <QDebug>
 #include <QWidget>
 
 
@@ -147,7 +148,8 @@ void MainWindow::onOpenRowSettings(TierRow* row) {
     });
     
     connect(dialog, &TierSettingsDialog::clearImages, this, [row]() {
-      //  row->clearImages();  // you'll need to implement this in TierRow
+        qDebug() << "Clearing images for row:" << row->getTierName();
+        row->clearImages();  // you'll need to implement this in TierRow
     });
     
     connect(dialog, &TierSettingsDialog::addRowAbove, this, [this, row]() {
