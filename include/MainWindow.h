@@ -20,6 +20,8 @@ private slots:
     void onRowMoveUp(TierRow* row);
     void onRowMoveDown(TierRow* row);
     void onOpenRowSettings(TierRow* row);
+    void onSaveTemplate();
+    void onLoadTemplate();
 
 private:
     QVBoxLayout* mainLayout;
@@ -31,5 +33,7 @@ private:
     QVector<TierRow*> tierRows;
 
     void insertRowRelativeTo(TierRow* referenceRow, bool above);
+    void loadTemplate(const QString& path);
+    void saveTemplate(const QString& name);
 };
 

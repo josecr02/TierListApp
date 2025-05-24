@@ -5,6 +5,13 @@
 #include <QLabel>
 #include <QDebug>
 #include <QWidget>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
+#include <QDir>
+#include <QInputDialog>
+
 
 
 
@@ -46,6 +53,20 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(loadButton);
     connect(loadButton, &QPushButton::clicked, this, &MainWindow::loadImages);
 
+
+    // Add template buttons 
+    QPushButton* loadTemplateBtn = new QPushButton("Choose from Template", this);
+    QPushButton* saveTemplateBtn = new QPushButton("Save as Template", this);
+
+    QHBoxLayout* templateButtonLayout = new QHBoxLayout();
+    templateButtonLayout->addWidget(loadTemplateBtn);
+    templateButtonLayout->addWidget(saveTemplateBtn);
+
+    mainLayout->addLayout(templateButtonLayout);
+
+    // now we connect the buttons
+    connect(loadTemplateBtn, &QPushButton::clicked, this, &MainWindow::onLoadTemplate);
+    connect(saveTemplateBtn, &QPushButton::clicked, this, &MainWindow::onSaveTemplate);
 
 // ⬇️ Source item container
     // sourceItemsContainer = new QWidget(this);
@@ -180,4 +201,81 @@ void MainWindow::insertRowRelativeTo(TierRow* referenceRow, bool above){
     connect(newRow, &TierRow::moveUp, this, &MainWindow::onRowMoveUp);
     connect(newRow, &TierRow::moveDown, this, &MainWindow::onRowMoveDown);
     connect(newRow, &TierRow::openSettings, this, &MainWindow::onOpenRowSettings);
+}
+
+
+
+// template stuff
+
+void MainWindow::onLoadTemplate()
+{
+    QDir().mkpath("templates");
+
+    QStringList templates;
+    QDir dir("templates");
+    for (const QFileInfo& info : dir.entryInfoList(QStringList() << "*.json", QDir::Files)) {
+        templates.append(info.baseName());
+    }
+
+    QString selected = QInputDialog::getItem(this, "Choose Template", 
+        "Select a template:", templates, 0, false);
+
+    if (!selected.isEmpty()) {
+        loadTemplate("templates/" + selected + ".json");
+    }
+}
+
+
+void MainWindow::onSaveTemplate()
+{
+    QString name = QInputDialog::getText(this, "Save Template", "Enter a template name:");
+    if (name.isEmpty()) return;
+
+    saveTemplate(name);
+}
+
+void MainWindow::loadTemplate(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) return;
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QJsonArray array = doc.array();
+
+    // Clear bank row
+    QLayout* layout = sourceItemsContainer->getLayout();
+    while (QLayoutItem* item = layout->takeAt(0)) {
+        if (QWidget* widget = item->widget())
+            widget->deleteLater();
+        delete item;
+    }
+
+    for (const QJsonValue& val : array) {
+        QString imagePath = val.toString();
+        TierItem* item = new TierItem(imagePath, sourceItemsContainer);
+        layout->addWidget(item);
+    }
+}
+
+
+void MainWindow::saveTemplate(const QString& name)
+{
+    QJsonArray images;
+    QLayout* layout = sourceItemsContainer->getLayout();
+
+    for (int i = 0; i < layout->count(); ++i) {
+        TierItem* item = qobject_cast<TierItem*>(layout->itemAt(i)->widget());
+        if (item) {
+            images.append(item->getImagePath());  // assumes TierItem has getImagePath()
+        }
+    }
+
+    QDir().mkpath("templates");
+
+    QFile out("templates/" + name + ".json");
+    if (out.open(QIODevice::WriteOnly)) {
+        QJsonDocument doc(images);
+        out.write(doc.toJson());
+        out.close();
+    }
 }

@@ -125,6 +125,7 @@ public:
     TierItem(const QString& imagePath, QWidget* parent = nullptr);
     QString getImagePath() const;
 
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 };
