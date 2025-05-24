@@ -46,6 +46,7 @@ void Tier::paintEvent(QPaintEvent* event)
 TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
 : QWidget(parent), name{name}
 {
+    setAcceptDrops(true);
     mainLayout = new QHBoxLayout(this);
 
     // create the Tier Name Label
@@ -55,22 +56,24 @@ TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
 
     tierLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-    QString style = QString(R"(
-        font-weight: bold;
-        font-size: 17pt;
-        color: black;
-        background-color: %1;
-        border: none;
-        padding: 10px;
-    )").arg(color.name());
+    // QString style = QString(R"(
+    //     font-weight: bold;
+    //     font-size: 17pt;
+    //     color: black;
+    //     background-color: %1;
+    //     border: none;
+    //     padding: 10px;
+    // )").arg(color.name());
 
-    // tierLabel->setStyleSheet(R"(
-    // font-weight: bold;
-    // font-size: 20pt;
-    // color: black;
-    // )");
+    // // tierLabel->setStyleSheet(R"(
+    // // font-weight: bold;
+    // // font-size: 20pt;
+    // // color: black;
+    // // )");
 
-    tierLabel->setStyleSheet(style);
+    setTierColor(color);
+
+    // tierLabel->setStyleSheet(style);
 
     // can instead of doing the palette with background-color
 
@@ -86,7 +89,7 @@ TierRow::TierRow(const QString& name, const QColor& color, QWidget* parent)
     tierLabel->setPalette(tierPalette);
 
     // create drop area
-    dropArea = new DropFrame(this);
+    dropArea = new QFrame(this);
     dropArea->setFrameShape(QFrame::StyledPanel);
     dropArea->setMinimumHeight(80);
     dropArea->setAcceptDrops(true);
