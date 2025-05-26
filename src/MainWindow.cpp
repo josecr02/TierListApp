@@ -86,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // KEEP changing from here, STEP 2 chatgpt
 
-
+    
 
    // layout->addWidget(new TierItem("resources/burger.png", this));
    // layout->addWidget(new TierItem("resources/pizza.jpg", this));
@@ -139,6 +139,7 @@ void MainWindow::loadImages()
 void MainWindow::onRowMoveUp(TierRow* row) {
     int index = mainLayout->indexOf(row);
     if (index > 0) {
+        tierRows.swapItemsAt(index, index - 1);
         mainLayout->removeWidget(row);
         mainLayout->insertWidget(index - 1, row);
     }

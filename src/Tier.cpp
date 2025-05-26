@@ -213,7 +213,7 @@ TierItem::TierItem(const QString& imagePath, QWidget* parent)
     QPixmap pix(imagePath);
     setPixmap(pix.scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    setFixedSize(80, 80);
+    // setFixedSize(80, 80);
     setStyleSheet(R"(
         background-color: lightgray;
         border: 1px solid black;
