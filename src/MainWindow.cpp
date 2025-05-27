@@ -49,8 +49,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // Button to load images
-    QPushButton* loadButton = new QPushButton("Load Images", this);
+    loadButton = new QPushButton("Load Images", this);
     mainLayout->addWidget(loadButton);
+    loadButton->setObjectName("loadImagesButton");
     connect(loadButton, &QPushButton::clicked, this, &MainWindow::loadImages);
 
 
@@ -58,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     QPushButton* loadTemplateBtn = new QPushButton("Choose from Template", this);
     QPushButton* saveTemplateBtn = new QPushButton("Save as Template", this);
 
-    QHBoxLayout* templateButtonLayout = new QHBoxLayout();
+    templateButtonLayout = new QHBoxLayout();
     templateButtonLayout->addWidget(loadTemplateBtn);
     templateButtonLayout->addWidget(saveTemplateBtn);
 
@@ -237,45 +238,207 @@ void MainWindow::onSaveTemplate()
 
 void MainWindow::loadTemplate(const QString& path)
 {
+    // QFile file(path);
+    // if (!file.open(QIODevice::ReadOnly)) return;
+
+    // QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    // QJsonArray array = doc.array();
+
+    // // Clear bank row
+    // QLayout* layout = sourceItemsContainer->getLayout();
+    // while (QLayoutItem* item = layout->takeAt(0)) {
+    //     if (QWidget* widget = item->widget())
+    //         widget->deleteLater();
+    //     delete item;
+    // }
+
+    // for (const QJsonValue& val : array) {
+    //     QString imagePath = val.toString();
+    //     TierItem* item = new TierItem(imagePath, sourceItemsContainer);
+    //     layout->addWidget(item);
+    // }
+
+    // QFile file(path);
+    // if (!file.open(QIODevice::ReadOnly)) return;
+
+    // QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    // QJsonObject root = doc.object();
+
+    // // 1. Load bank row
+    // QJsonArray bank = root["bank"].toArray();
+    // QLayout* layout = sourceItemsContainer->getLayout();
+    // while (QLayoutItem* item = layout->takeAt(0)) {
+    //     if (item->widget()) item->widget()->deleteLater();
+    //     delete item;
+    // }
+    // for (const QJsonValue& val : bank) {
+    //     TierItem* item = new TierItem(val.toString(), sourceItemsContainer);
+    //     layout->addWidget(item);
+    // }
+
+    // // 2. Load tier rows
+    // for (TierRow* row : tierRows) {
+    //     row->deleteLater();
+    // }
+    // tierRows.clear();
+
+    // QJsonArray tiers = root["tiers"].toArray();
+    // for (const QJsonValue& val : tiers) {
+    //     QJsonObject obj = val.toObject();
+    //     QString name = obj["name"].toString();
+    //     QColor color(obj["color"].toString());
+
+    //     TierRow* row = new TierRow(name, color, this);
+    //     mainLayout->addWidget(row);
+    //     tierRows.append(row);
+
+    //     connect(row, &TierRow::moveUp, this, &MainWindow::onRowMoveUp);
+    //     connect(row, &TierRow::moveDown, this, &MainWindow::onRowMoveDown);
+    //     connect(row, &TierRow::openSettings, this, &MainWindow::onOpenRowSettings);
+
+    //     QJsonArray images = obj["images"].toArray();
+    //     for (const QJsonValue& img : images) {
+    //         row->getLayout()->addWidget(new TierItem(img.toString(), row));
+    //     }
+    // }
+
+    // sourceItemsContainer->setParent(nullptr);                 // Detach it
+    // mainLayout->removeWidget(sourceItemsContainer);          // Ensure it's gone
+    // mainLayout->addWidget(sourceItemsContainer);             // Reinsert at the end
+
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) return;
 
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    QJsonArray array = doc.array();
+    QJsonObject root = doc.object();
 
-    // Clear bank row
-    QLayout* layout = sourceItemsContainer->getLayout();
-    while (QLayoutItem* item = layout->takeAt(0)) {
-        if (QWidget* widget = item->widget())
-            widget->deleteLater();
+    // 1. Remove everything from mainLayout *except* templateButtonLayout
+    QVector<QLayoutItem*> itemsToDelete;
+
+    for (int i = 0; i < mainLayout->count(); ++i) {
+        QLayoutItem* item = mainLayout->itemAt(i);
+
+        if (item->layout() == templateButtonLayout) {
+            // do nothing
+        }
+        else if (item->widget() && item->widget()->objectName() == "loadImagesButton") {
+            // do nothing
+        }
+        // Identify templateButtonLayout to keep it
+        else {
+            itemsToDelete.append(item);
+        }
+    }
+
+    for (QLayoutItem* item : itemsToDelete) {
+        QWidget* widget = item->widget();
+        if (widget) widget->deleteLater();
+        mainLayout->removeItem(item);
         delete item;
     }
 
-    for (const QJsonValue& val : array) {
-        QString imagePath = val.toString();
-        TierItem* item = new TierItem(imagePath, sourceItemsContainer);
+    // 2. Clear tierRows vector
+    for (TierRow* row : tierRows) {
+        row->deleteLater();
+    }
+    tierRows.clear();
+
+    // 3. Load tier rows
+    QJsonArray tiers = root["tiers"].toArray();
+    for (const QJsonValue& val : tiers) {
+        QJsonObject obj = val.toObject();
+        QString name = obj["name"].toString();
+        QColor color(obj["color"].toString());
+
+        TierRow* row = new TierRow(name, color, this);
+        mainLayout->addWidget(row);
+        tierRows.append(row);
+
+        connect(row, &TierRow::moveUp, this, &MainWindow::onRowMoveUp);
+        connect(row, &TierRow::moveDown, this, &MainWindow::onRowMoveDown);
+        connect(row, &TierRow::openSettings, this, &MainWindow::onOpenRowSettings);
+
+        QJsonArray images = obj["images"].toArray();
+        for (const QJsonValue& img : images) {
+            row->getLayout()->addWidget(new TierItem(img.toString(), row));
+        }
+    }
+
+    // 4. Load bank row
+    QJsonArray bank = root["bank"].toArray();
+    QLayout* layout = sourceItemsContainer->getLayout();
+    while (QLayoutItem* item = layout->takeAt(0)) {
+        if (item->widget()) item->widget()->deleteLater();
+        delete item;
+    }
+    for (const QJsonValue& val : bank) {
+        TierItem* item = new TierItem(val.toString(), sourceItemsContainer);
         layout->addWidget(item);
     }
+
+    // 5. Add bank row *just before* the template buttons
+    mainLayout->insertWidget(mainLayout->count(), sourceItemsContainer);
 }
 
 
 void MainWindow::saveTemplate(const QString& name)
 {
-    QJsonArray images;
-    QLayout* layout = sourceItemsContainer->getLayout();
+    // QJsonArray images;
+    // QLayout* layout = sourceItemsContainer->getLayout();
 
-    for (int i = 0; i < layout->count(); ++i) {
-        TierItem* item = qobject_cast<TierItem*>(layout->itemAt(i)->widget());
+    // for (int i = 0; i < layout->count(); ++i) {
+    //     TierItem* item = qobject_cast<TierItem*>(layout->itemAt(i)->widget());
+    //     if (item) {
+    //         images.append(item->getImagePath());  // assumes TierItem has getImagePath()
+    //     }
+    // }
+
+    // QDir().mkpath("templates");
+
+    // QFile out("templates/" + name + ".json");
+    // if (out.open(QIODevice::WriteOnly)) {
+    //     QJsonDocument doc(images);
+    //     out.write(doc.toJson());
+    //     out.close();
+    // }
+
+    QJsonObject root;
+
+    // Save bank row
+    QJsonArray bankImages;
+    QLayout* bankLayout = sourceItemsContainer->getLayout();
+    for (int i = 0; i < bankLayout->count(); ++i) {
+        TierItem* item = qobject_cast<TierItem*>(bankLayout->itemAt(i)->widget());
         if (item) {
-            images.append(item->getImagePath());  // assumes TierItem has getImagePath()
+            bankImages.append(item->getImagePath());
         }
     }
+    root["bank"] = bankImages;
+
+    // Save tier rows
+    QJsonArray tiersArray;
+    for (TierRow* row : tierRows) {
+        QJsonObject rowObj;
+        rowObj["name"] = row->getTierName();
+        rowObj["color"] = row->getTierColor().name();
+
+        QJsonArray tierImages;
+        QLayout* dropLayout = row->getLayout();  // add this getter if needed
+        for (int i = 0; i < dropLayout->count(); ++i) {
+            TierItem* item = qobject_cast<TierItem*>(dropLayout->itemAt(i)->widget());
+            if (item) {
+                tierImages.append(item->getImagePath());
+            }
+        }
+        rowObj["images"] = tierImages;
+        tiersArray.append(rowObj);
+    }
+    root["tiers"] = tiersArray;
 
     QDir().mkpath("templates");
-
     QFile out("templates/" + name + ".json");
     if (out.open(QIODevice::WriteOnly)) {
-        QJsonDocument doc(images);
+        QJsonDocument doc(root);
         out.write(doc.toJson());
         out.close();
     }

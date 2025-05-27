@@ -76,6 +76,8 @@ public:
         return color;
     }
 
+    QHBoxLayout* getLayout() const { return dropLayout; }
+
     void setTierName(const QString& newName){
         name = newName;
     }

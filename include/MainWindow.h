@@ -32,6 +32,9 @@ private:
     //QVBoxLayout* mainLayout;
     QVector<TierRow*> tierRows;
 
+    QHBoxLayout* templateButtonLayout;
+    QPushButton* loadButton ;
+
     void insertRowRelativeTo(TierRow* referenceRow, bool above);
     void loadTemplate(const QString& path);
     void saveTemplate(const QString& name);
