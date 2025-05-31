@@ -1,7 +1,3 @@
-# Tier List App 
-
-
-
 # 🎯 TierListApp
 
 A sleek Qt-based Tier List Creator for ranking your favorite games, characters, food, or whatever you like!  
